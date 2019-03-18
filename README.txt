@@ -5,8 +5,8 @@ APPRENTISSAGE AUTO
 ----------- > Respecte les spécifications pour le projet quant aux arguments d'entrée.
 
 --------------------
-| fit_n_predict.py | > Fonctions générales d'apprentissage et de prédiction appellées selon les arguments passés à main.py.
--------------------- > 'Fit' entraîne sur les images dans le dossier passé en argument et enregistre le classifieur dans le dossier 'Models'.
+| fit_n_predict.py | > Fonctions appellées par main.py.
+-------------------- > 'Fit' entraîne sur les images dans le dossier spécifié et enregistre le classifieur dans 'Models'.
                      > 'Predict' le charge et lance la prédiction sur le dossier passé en argument à main.py.
 
 -------------------
@@ -24,6 +24,10 @@ APPRENTISSAGE AUTO
 -----------
 | util.py | > Fonctions utilitaires rendant plus simples la lecture et l'écriture des fonctions d'apprentissage et de prédiction.
 -----------
+
+--------------
+| current.py | > Fonctions utilitaires pour ne pas avoir à modifier beaucoup de code pour changer l'algorithme à utiliser.
+--------------
 
 ----------------
 | NB_simple.py | > Ensemble de fonctions d'apprentissage et de prédiction correspondant à l'algorithme Naive Bayes Gaussien
