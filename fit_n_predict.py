@@ -2,8 +2,12 @@
 from PIL import Image
 from PIL import ImageStat
 
-#Score pour calc_score
+#Sklearn pour score et split
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split as tts
+
+#Random
+import random
 
 #NumPy cool
 import numpy as np
@@ -21,12 +25,14 @@ from output_stats import add_stats
 #Nos fonctions d'apprentissage
 from Algorithms.current import current_algorithm_fit
 from Algorithms.current import current_algorithm_pred
+from Algorithms.current import current_algorithm_pred_array
 
 #Warnings
 import warnings
 warnings.filterwarnings("ignore")
 
 
+####################################################################################################
 """
 Fonction d'apprentissage. Prend un chemin en entrée, et peut éventuellement
 écrire les stats d'apprentissage dans un fichier.cvs.
@@ -43,90 +49,126 @@ def fit(train_path, print_stats = False):
     if(print_stats):
         clear_file()
 
-    images_class = []
+    data = []
+    target = []
 
     #Loading SEA class
     for path, dirs, files in os.walk(path_mer):
         for filename in files:
             im = Image.open(path + '/' + filename)
-            images_class.append([im,1])
+            data.append(im)
+            target.append(1)
 
     #Loading ELSEWHERE class
     for path, dirs, files in os.walk(path_ailleurs):
         for filename in files:
             im = Image.open(path + '/' + filename)
-            images_class.append([im,-1])
+            data.append(im)
+            target.append(-1)
 
-    """ /!\ Pour changer l'algorithme à utiliser, changer cette ligne : """
-    classifier = current_algorithm_fit(images_class)[0]
+    classifier = current_algorithm_fit(data, target)[0]
 
     #Sauvegarde pour utilisation
     dump(classifier, './Models/saved_classifier')
 
+####################################################################################################
 """
 Fonction de prédiction, prend en entrée un chemin et renvoit
 la classe prédite pour chaque image dans ce dossier.
 """
 def predict(predict_path, print_results = True, print_stats = False):
     classifier = load('./Models/saved_classifier')
-    images_pred = []
+    images = []
 
     for path, dirs, files in os.walk(predict_path):
         for filename in files:
             image = Image.open(path + '/' + filename)
-            """ /!\ Pour changer l'algorithme de prédiction, changer cette ligne : """
-            pred = current_algorithm_pred(classifier, image)
-            images_pred.append([filename, pred[0]])
+            images.append(image)
+
+    prediction = current_algorithm_pred_array(classifier, images)
 
     if(print_results):
-        for image_class in images_pred:
-            print("{\""+str(image_class[0])+"\" : "+str(image_class[1])+"}")
+        for result in prediction:
+            print("{\""+str(result[0])+"\" : "+str(result[1])+"}")
 
+    return prediction
+
+####################################################################################################
 """
 Fonction de calcul de score, ne peut être utilisée
 que sur un dossier qui possède 2 sous-dossiers "Mer" et "Ailleurs".
 """
 def calc_score(score_path, print_results = True, print_stats = False):
 	classifier = load('./Models/saved_classifier')
-	
+
 	path_mer = score_path + 'Mer'
 	path_ailleurs = score_path + 'Ailleurs'
 
 	#The result of our prediction algorithm
 	results = []
-	results_mer = []
-	results_ailleurs = []
-	
+
 	#The target datasets
 	target = []
-	target_mer = []
-	target_ailleurs = []
-	
+
 	#Loading SEA class
 	for path, dirs, files in os.walk(path_mer):
 		for filename in files:
 			image = Image.open(path + '/' + filename)
-			""" /!\ Pour changer l'algorithme de prédiction, changer cette ligne : """
 			pred = current_algorithm_pred(classifier, image)
-			results.append(pred[0])
-			results_mer.append(pred[0])
+			results.append(pred)
 			target.append(1)
-			target_mer.append(1)
 
 	#Loading ELSEWHERE class
 	for path, dirs, files in os.walk(path_ailleurs):
 		for filename in files:
 			image = Image.open(path + '/' + filename)
-			""" /!\ Pour changer l'algorithme de prédiction, changer cette ligne : """
 			pred = current_algorithm_pred(classifier, image)
-			results.append(pred[0])
-			results_ailleurs.append(pred[0])
+			results.append(pred)
 			target.append(-1)
-			target_ailleurs.append(-1)
 
 	if(print_results):
-		print("------------------------------------")
-		print("> Score Total :    "+str(accuracy_score(target, results)))
-		print("------------------------------------")
-		print("  > Score Mer :      "+str(accuracy_score(target_mer, results_mer)))
-		print("  > Score Ailleurs : "+str(accuracy_score(target_ailleurs, results_ailleurs)))
+		print("\n> Score Total : "+str(accuracy_score(target, results))+'\n')
+
+####################################################################################################
+"""
+Fonction qui divise l'ensemble d'images en 2. Le classifieur va être entraîné sur le 1er ensemble obtenu
+et effectuera ses prédicitons sur le 2ème.
+"""
+def score_split(split_path, test_percent, print_results = True, print_stats = False):
+
+    #Classes' paths
+    path_mer = split_path + 'Mer'
+    path_ailleurs = split_path + 'Ailleurs'
+
+    #Clear/make stats output file
+    if(print_stats):
+        clear_file()
+
+    data = []
+    target = []
+
+    #Loading SEA class
+    for path, dirs, files in os.walk(path_mer):
+        for filename in files:
+            im = Image.open(path + '/' + filename)
+            data.append(im)
+            target.append(1)
+
+    #Loading ELSEWHERE class
+    for path, dirs, files in os.walk(path_ailleurs):
+        for filename in files:
+            im = Image.open(path + '/' + filename)
+            data.append(im)
+            target.append(-1)
+
+    data_train, data_test, target_train, target_test = tts(data, target, test_size = test_percent)
+
+    results = []
+
+    classifier = current_algorithm_fit(data_train, target_train)[0]
+
+    for image in data_test:
+        results.append(current_algorithm_pred(classifier, image))
+
+    if(print_results):
+        print("\n> Score Total : "+str(accuracy_score(target_test, results))+'\n')

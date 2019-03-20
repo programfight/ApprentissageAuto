@@ -8,6 +8,9 @@ APPRENTISSAGE AUTO
 | fit_n_predict.py | > Fonctions appellées par main.py.
 -------------------- > 'Fit' entraîne sur les images dans le dossier spécifié et enregistre le classifieur dans 'Models'.
                      > 'Predict' le charge et lance la prédiction sur le dossier passé en argument à main.py.
+                     > 'Score' renvoie le score du classifieur lancé dans un dossier avec des images déjà classées.
+                     > 'Split' divise le dossier en un ensemble d'entraînement et un ensemble de test pour
+                     > entraîner le classifieur sur le premier et le tester sur le deuxième.
 
 -------------------
 | output_stats.py | > Fonctions d'écriture dans un fichier pour stocker nos logs et garder nos résultats pour chaque algorithme.
