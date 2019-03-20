@@ -26,6 +26,7 @@ from output_stats import add_stats
 from Algorithms.current import current_algorithm_fit
 from Algorithms.current import current_algorithm_pred
 from Algorithms.current import current_algorithm_pred_array
+from Algorithms.current import current_algorithm_cross_validate
 
 #Warnings
 import warnings
@@ -98,7 +99,7 @@ def predict(predict_path, print_results = True, print_stats = False):
 Fonction de calcul de score, ne peut être utilisée
 que sur un dossier qui possède 2 sous-dossiers "Mer" et "Ailleurs".
 """
-def calc_score(score_path, print_results = True, print_stats = False):
+def calc_score(score_path, scoreType, print_results = True, print_stats = False):
 	classifier = load('./Models/saved_classifier')
 
 	path_mer = score_path + 'Mer'
@@ -126,15 +127,16 @@ def calc_score(score_path, print_results = True, print_stats = False):
 			results.append(pred)
 			target.append(-1)
 
-	if(print_results):
-		print("\n> Score Total : "+str(accuracy_score(target, results))+'\n')
+	if print_results:
+            if scoreType == "accuracy":
+                print("\n> Score Total : "+str(accuracy_score(target, results))+'\n')
 
 ####################################################################################################
 """
 Fonction qui divise l'ensemble d'images en 2. Le classifieur va être entraîné sur le 1er ensemble obtenu
-et effectuera ses prédicitons sur le 2ème.
+et effectuera ses prédicitons sur le 2ème. Affiche le score.
 """
-def score_split(split_path, test_percent, print_results = True, print_stats = False):
+def score_split(split_path, test_percent, scoreType,print_results = True, print_stats = False):
 
     #Classes' paths
     path_mer = split_path + 'Mer'
@@ -161,14 +163,13 @@ def score_split(split_path, test_percent, print_results = True, print_stats = Fa
             data.append(im)
             target.append(-1)
 
-    data_train, data_test, target_train, target_test = tts(data, target, test_size = test_percent)
-
-    results = []
-
-    classifier = current_algorithm_fit(data_train, target_train)[0]
-
-    for image in data_test:
-        results.append(current_algorithm_pred(classifier, image))
-
-    if(print_results):
-        print("\n> Score Total : "+str(accuracy_score(target_test, results))+'\n')
+    if print_results:
+            if scoreType == "accuracy":
+                data_train, data_test, target_train, target_test = tts(data, target, test_size = test_percent)
+                results = []
+                classifier = current_algorithm_fit(data_train, target_train)[0]
+                results = [element[1] for element in current_algorithm_pred_array(classifier, data_test)]
+                print("\n> Accuracy Score : "+str(accuracy_score(target_test, results))+'\n')
+            if scoreType == "cross-validation":
+                scores = current_algorithm_cross_validate(data, target, 5)
+                print("\n> Cross-Validation : \n\t> Accuracy : "+str(scores.mean())+"\n\t> StdDev : "+str(scores.std() * 2))

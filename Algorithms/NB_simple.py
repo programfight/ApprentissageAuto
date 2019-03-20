@@ -6,6 +6,8 @@ from PIL import ImageStat
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import accuracy_score
 
+from sklearn.model_selection import cross_val_score
+
 #Util
 from Algorithms.util import util_fit
 from Algorithms.util import util_score
@@ -19,73 +21,36 @@ qui regardent des paramètres simples pour chaque image.
 """
 
 ####################################################################################################
-# NB Gaussien sur histogramme simple
-"""
-Naive Bayes Gaussien (NBG) qui regarde simplement l'histogramme de chaque image.
-On a donc 768 attributs (3 * 256) par image. Les variations de taille entre les images
-rendent cette technique quasiment aléatoire.
-[ SCORE ~= 58% ]
-"""
-
-"""
-Fonction d'apprentissage pour NBG avec histogramme.
-Renvoie le classifieur, son nom, ses paramètres et le temps d'apprentissage dans un tuple.
-"""
-def NBGH_fit(raw_data, labels):
-    data    = []
-    target  = []
-
-    for image, label in zip(raw_data, labels):
-        h = image.histogram()
-        data.append(h)
-        target.append(label)
-
-    # TRAINING
-    classifier = GaussianNB()
-    tpsApp = util_fit(classifier, data, target)
-
-    return (classifier, "NBG", "Histo Simple", tpsApp)
-
-"""
-Fonction de prédiction pour le NBGH.
-"""
-def NBGH_predict(classifier, image):
-    data = image.histogram()
-    return classifier.predict([data])[0]
-
-####################################################################################################
 # NB Gaussien sur histogramme normalisé
 """
 Naive Bayes Gaussien (NBG) qui regarde l'histogramme de chaque image.
-L'histogramme est réduit pour éviter le biais à cause
-la taille d'une image.
-[ SCORE ~= 52% ]
+L'histogramme est réduit pour éviter le surplus de données.
+[ SCORE ~= ? ]
 """
 
 """
-Fonction d'apprentissage pour NBG avec histogramme 'normalisé'.
+Fonction d'apprentissage pour NBG avec histogramme 'réduit.
 Renvoie le classifieur, son nom, ses paramètres et le temps d'apprentissage dans un tuple.
 """
-def NBGH_norm_fit(raw_data, labels):
+def NBGH_red_fit(raw_data, labels):
     data    = []
     target  = []
 
     for image, label in zip(raw_data, labels):
-        h = imgmanip.histProfondeurCouleurReduite(image)
+        h = imgmanip.histogrammeReduit(image)
         data.append(h)
         target.append(label)
 
-    # TRAINING
     classifier = GaussianNB()
     tpsApp = util_fit(classifier, data, target)
 
-    return (classifier, "NBG", "Histogramme Normalisé", tpsApp)
+    return (classifier, "NBG", "Histogramme Réduit", tpsApp)
 
 """
 Fonction de prédiction pour le NBGH normalisé.
 """
-def NBGH_norm_predict(classifier, image):
-    data = imgmanip.histProfondeurCouleurReduite(image)
+def NBGH_red_predict(classifier, image):
+    data = imgmanip.histogrammeReduit(image)
     return classifier.predict([data])[0]
 
 ####################################################################################################
@@ -110,7 +75,6 @@ def NBGS_fit(raw_data, labels):
         data.append(stats)
         target.append(label)
 
-    # TRAINING
     classifier = GaussianNB()
     tpsApp = util_fit(classifier, data, target)
 
@@ -123,3 +87,22 @@ def NBGS_predict(classifier, image):
     image_stats = ImageStat.Stat(image)
     data = image_stats.mean + image_stats.median + image_stats.stddev
     return classifier.predict([data])[0]
+
+"""
+Fonction de Cross-Validation pour le NBGS
+"""
+def NBGS_cross_validate(raw_data, labels, nb_cv = 5):
+    data    = []
+    target  = []
+
+    for image, label in zip(raw_data, labels):
+        image_stats = ImageStat.Stat(image)
+        stats = image_stats.mean + image_stats.median + image_stats.stddev
+        data.append(stats)
+        target.append(label)
+
+    # TRAINING
+    classifier = GaussianNB()
+    CV_score = cross_val_score(classifier, data, target, cv = nb_cv)
+
+    return CV_score
