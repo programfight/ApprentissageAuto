@@ -1,3 +1,5 @@
+﻿Les dossiers contenant des images sont à obtenir en dehors de Github, sur le site de Rémi Eyraud pour les images de base, ou un drive que nous aurons mis en place si nous étendons l'échantillon d'images.
+
 APPRENTISSAGE AUTO
 
 -----------
