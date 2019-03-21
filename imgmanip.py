@@ -22,28 +22,17 @@ def histProfondeurCouleurReduite(im):
             hred.append(histo[i])
     return hred
 
+def extractStats(image):
+    image_stats = ImageStat.Stat(image)
+    stats = image_stats.mean + image_stats.stddev + image_stats.median
+    return stats
+
+"""
+NE PAS UTILISER SOUS PEINE DE MORT
+"""
 def histogrammeReduit(image):
-    h = image.histogram();
-    hred = h[0:len(h)//3]
-    hgreen = h[len(h)//3:(len(h)//3)*2]
-    hblue = h[(len(h)//3)*2:len(h)]
-
-    m_red = np.amax(hred)
-    m_green = np.amax(hgreen)
-    m_blue = np.amax(hblue)
-
-    hred = np.array(hred)
-    hred = (hred*100)/m_red
-
-    hgreen = np.array(hgreen)
-    hgreen = (hgreen*100)/m_green
-
-    hblue = np.array(hblue)
-    hblue = (hblue*100)/m_blue
-
-
-    h_reduit = hred
-    h_reduit = np.append(h_reduit, hgreen)
-    h_reduit = np.append(h_reduit, hblue)
-
-    return h_reduit
+    image = image.resize([250,250])
+    histo = np.array(image.histogram());
+    h_reduit = histo//(np.amax(histo)/100)
+    h_reduit = h_reduit.astype(int)
+    return h_reduit.tolist()
