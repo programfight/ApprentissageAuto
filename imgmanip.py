@@ -17,9 +17,18 @@ def histProfondeurCouleurReduite(im):
     im = im.resize([150,150])
     histo = im.histogram()
     hred = []
-    for i in range(len(histo)):
-        if i%85 == 0:
-            hred.append(histo[i])
+    hred.append(histo[0])
+    hred.append(histo[85])
+    hred.append(histo[170])
+    hred.append(histo[255])
+    hred.append(histo[256])
+    hred.append(histo[341])
+    hred.append(histo[426])
+    hred.append(histo[511])
+    hred.append(histo[512])
+    hred.append(histo[597])
+    hred.append(histo[682])
+    hred.append(histo[767])
     return hred
 
 def extractStats(image):
