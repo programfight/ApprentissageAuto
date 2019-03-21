@@ -5,6 +5,8 @@ from PIL import ImageColor
 from PIL import ImageDraw
 import numpy as np
 
+from skimage.feature import hog
+
 import os
 
 """
@@ -28,11 +30,15 @@ def extractStats(image):
     return stats
 
 """
-NE PAS UTILISER SOUS PEINE DE MORT
+on peu tl' itlsuer
 """
 def histogrammeReduit(image):
-    image = image.resize([250,250])
     histo = np.array(image.histogram());
-    h_reduit = histo//(np.amax(histo)/100)
-    h_reduit = h_reduit.astype(int)
+    h_reduit = (histo - np.amax(histo))/(np.amax(histo) - np.amin(histo))
     return h_reduit.tolist()
+
+def hogimage(image):
+    image = image.resize([250,250])
+    _, h = hog(image, orientations=8, pixels_per_cell=(16, 16),
+    cells_per_block=(1, 1), visualize=True, multichannel=True)
+    return h.flatten()

@@ -19,11 +19,14 @@ from sklearn.model_selection import train_test_split as tts
 from Algorithms.util import util_fit
 from Algorithms.util import util_score
 
+#Preprocessing
+from sklearn import preprocessing
+
 #Nos fonctions de manipulation d'images
 import imgmanip
 
 """
-Plusieurs algorithmes d'apprentissage basés sur SVC.
+
 """
 
 ####################################################################################################
@@ -37,31 +40,33 @@ def SVC_fit(raw_data, labels):
         data.append(stats)
         target.append(label)
 
+    data = preprocessing.scale(data)
+
     classifier = SVC(gamma = 'auto', kernel = 'linear')
     tpsApp = util_fit(classifier, data, target)
 
     return (classifier, "SVC", " ", tpsApp)
 
 """
-Fonction de prédiction pour le SVC.
+Fonction de prédiction
 """
 def SVC_predict(classifier, image):
     data = imgmanip.histogrammeReduit(image)
     return classifier.predict([data])[0]
 
 """
-Fonction de Cross-Validation pour le SVC
+Fonction de Cross-Validation
 """
 def SVC_cross_validate(raw_data, labels, nb_cv = 5):
     data    = []
     target  = []
 
     for image, label in zip(raw_data, labels):
-        stats = imgmanip.histogrammeReduit(image)
+        stats = imgmanip.hogimage(image)
         data.append(stats)
         target.append(label)
 
-    classifier = SVC(gamma = 'auto', kernel = 'linear')
-    CV_score = cross_val_score(classifier, data, target, cv = nb_cv, verbose = 2, n_jobs = 2)
+    classifier = SVC(gamma = 'scale', kernel = 'rbf', verbose = 0)
+    CV_score = cross_val_score(classifier, data, target, cv = nb_cv, verbose = 2, n_jobs = -1)
 
     return CV_score
