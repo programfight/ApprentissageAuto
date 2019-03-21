@@ -36,3 +36,19 @@ def histogrammeReduit(image):
     h_reduit = histo//(np.amax(histo)/100)
     h_reduit = h_reduit.astype(int)
     return h_reduit.tolist()
+
+
+"""
+La procedure generateNewDataFromExisting genere des nouvelles images en rotationnant les images de -rotaterange à rotaterange
+"""
+def generateNewDataFromExisting(data,target):
+    rotaterange = 4
+    lenD = len(data)
+    for i in range(lenD):
+        #print(str(i)+"/"+str(lenD-1))
+        im = data[i]
+        for ii in range(-rotaterange,rotaterange):
+            if ii==0: 
+                continue
+            data.append(im.rotate(ii))
+            target.append(target[i])

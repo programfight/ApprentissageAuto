@@ -28,6 +28,8 @@ from Algorithms.current import current_algorithm_pred
 from Algorithms.current import current_algorithm_pred_array
 from Algorithms.current import current_algorithm_cross_validate
 
+#Fonction de generation de nouvelles images a partir d'image existante
+from imgmanip import generateNewDataFromExisting
 #Warnings
 import warnings
 warnings.filterwarnings("ignore")
@@ -66,6 +68,8 @@ def fit(train_path, print_stats = False):
             im = Image.open(path + '/' + filename)
             data.append(im)
             target.append(-1)
+
+    generateNewDataFromExisting(data,target)    
 
     classifier = current_algorithm_fit(data, target)[0]
 
@@ -162,6 +166,10 @@ def score_split(split_path, test_percent, scoreType,print_results = True, print_
             im = Image.open(path + '/' + filename)
             data.append(im)
             target.append(-1)
+
+    
+    generateNewDataFromExisting(data,target)
+    print(len(data),len(target))
 
     if print_results:
             if scoreType == "accuracy":
