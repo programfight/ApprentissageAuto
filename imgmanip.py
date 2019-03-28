@@ -31,7 +31,7 @@ def histProfondeurCouleurReduite(im):
     hred.append(histo[597])
     hred.append(histo[682])
     hred.append(histo[767])
-return hred
+	return hred
 
 def extractStats(image):
     image_stats = ImageStat.Stat(image)
@@ -59,11 +59,11 @@ def generateNewDataFromExisting(data,target):
             if ii==0: 
                 continue
             data.append(im.rotate(ii))
-target.append(target[i])
+			target.append(target[i])
 
 
 def hogimage(image):
     image = image.resize([250,250])
     _, h = hog(image, orientations=8, pixels_per_cell=(16, 16),
     cells_per_block=(1, 1), visualize=True, multichannel=True)
-    return h.flatten()
+	return h.flatten()
